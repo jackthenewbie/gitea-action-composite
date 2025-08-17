@@ -1,0 +1,76 @@
+# .gitea/actions/sync-upstream/action.yml
+name: 'Sync with Upstream Repository'
+description: 'A reusable composite action to fetch changes from an upstream repository, merge them, and push to the current repository.'
+
+# Define the inputs this action will accept from other workflows
+inputs:
+  token:
+    description: 'A token with push access to the repository. Use secrets.TOKEN or a PAT.'
+    required: true
+  upstream_repo_url:
+    description: 'The URL of the upstream repository to sync from.'
+    required: true
+  target_branch:
+    description: 'The branch in this repository to merge changes into.'
+    required: false
+    default: 'main'
+  upstream_branch:
+    description: 'The branch from the upstream repository to merge from.'
+    required: false
+    default: 'main'
+  git_user_name:
+    description: 'The git user name for the merge commit.'
+    required: false
+    default: 'gitea-actions[bot]'
+  git_user_email:
+    description: 'The git user email for the merge commit.'
+    required: false
+    default: 'gitea-actions[bot]@users.noreply.gitea.io'
+
+runs:
+  using: "composite"
+  steps:
+    # Step 1: Checkout the target repository using the provided token
+    - name: Checkout repository
+      uses: https://github.com/actions/checkout@v4
+      with:
+        token: ${{ inputs.token }}
+        ref: ${{ inputs.target_branch }}
+        fetch-depth: 0 # Fetch all history for a proper merge
+
+    # Step 2: Add the upstream remote if it doesn't already exist
+    - name: Check and add upstream remote
+      shell: bash
+      run: |
+        if ! git remote -v | grep -q '^upstream'; then
+          echo "Upstream remote not found, adding it."
+          git remote add upstream ${{ inputs.upstream_repo_url }}
+        else
+          echo "Upstream remote already exists."
+        fi
+
+    # Step 3: Fetch all changes from the upstream repository
+    - name: Fetch upstream
+      shell: bash
+      run: git fetch upstream
+
+    # Step 4: Configure the git user for the commit
+    - name: Configure Git user
+      shell: bash
+      run: |
+        git config user.email "${{ inputs.git_user_email }}"
+        git config user.name "${{ inputs.git_user_name }}"
+
+    # Step 5: Merge the changes from the upstream branch into the target branch
+    - name: Merge upstream into target branch
+      shell: bash
+      run: |
+        git merge upstream/${{ inputs.upstream_branch }} --no-ff -m "Merge upstream changes from ${{ inputs.upstream_branch }}" || {
+          echo "Merge failed, please resolve conflicts manually."
+          exit 1
+        }
+
+    # Step 6: Push the merged changes back to the origin repository
+    - name: Push changes
+      shell: bash
+      run: git push origin ${{ inputs.target_branch }}
