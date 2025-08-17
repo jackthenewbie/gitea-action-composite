@@ -1,4 +1,4 @@
-# .gitea/actions/sync-upstream/action.yml
+# .githube/actions/sync-upstream/action.yml
 name: 'Sync with Upstream Repository'
 description: 'A reusable composite action to fetch changes from an upstream repository, merge them, and push to the current repository.'
 
@@ -21,11 +21,11 @@ inputs:
   git_user_name:
     description: 'The git user name for the merge commit.'
     required: false
-    default: 'gitea-actions[bot]'
+    default: 'githube-actions[bot]'
   git_user_email:
     description: 'The git user email for the merge commit.'
     required: false
-    default: 'gitea-actions[bot]@users.noreply.gitea.io'
+    default: 'githube-actions[bot]@users.noreply.githube.io'
 
 runs:
   using: "composite"
