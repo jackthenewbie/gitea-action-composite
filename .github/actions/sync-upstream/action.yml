@@ -1,4 +1,4 @@
-# .githube/actions/sync-upstream/action.yml
+# .github/actions/sync-upstream/action.yml
 name: 'Sync with Upstream Repository'
 description: 'A reusable composite action to fetch changes from an upstream repository, merge them, and push to the current repository.'
 
@@ -32,7 +32,7 @@ runs:
   steps:
     # Step 1: Checkout the target repository using the provided token
     - name: Checkout repository
-      uses: https://github.com/actions/checkout@v4
+      uses: actions/checkout@v4
       with:
         token: ${{ inputs.token }}
         ref: ${{ inputs.target_branch }}
