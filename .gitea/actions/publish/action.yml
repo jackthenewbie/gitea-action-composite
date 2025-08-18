@@ -17,7 +17,7 @@ inputs:
   password:
     description: 'Password or token for logging into the container registry.'
     required: true
-  context:
+  build-context:
     description: 'The build context path for the Docker build.'
     required: false
     default: '.'
@@ -45,7 +45,7 @@ runs:
       id: push
       uses: https://github.com/docker/build-push-action@master
       with:
-        context: ${{ inputs.context }}
+        context: ${{ inputs.build-context }}
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
