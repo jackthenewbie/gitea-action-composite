@@ -39,7 +39,8 @@ runs:
       uses: https://github.com/docker/metadata-action@master
       with:
         images: ${{ inputs.registry }}/${{ inputs.image_name }}
-
+        tags: |
+          type=raw,value={{sha}}
     # Builds the image based on the repository's Dockerfile and pushes it to the registry.
     - name: Build and push Docker image
       id: push
